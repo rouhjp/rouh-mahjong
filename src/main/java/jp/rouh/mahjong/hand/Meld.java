@@ -11,8 +11,7 @@ import java.util.List;
  * 面子を表すインターフェース。
  *
  * <p>副露などの場に出た面子や, 得点計算の際の並べ替え時に利用されます。
- *
- *
+ * TODO: write specific document
  * <table>
  * <tr><th>種類</th>
  *     <th>{@link #isConcealed}</th>
@@ -64,7 +63,8 @@ public interface Meld extends HandComponent{
 
     /**
      * 面子を構成する牌をグラフィック上の並びで取得します。
-     * 例えば, 手牌中の[2, 4]に対して[3]をチーして成立した順子に対し
+     *
+     * <p>例えば, 手牌中の[2, 4]に対して[3]をチーして成立した順子に対し
      * このメソッドを呼び出した場合, 返されるリストは[3, 2, 4]の順になります。
      * また, 加槓された牌は最後に追加されます。
      * @return 面子構成牌のリスト
@@ -80,7 +80,8 @@ public interface Meld extends HandComponent{
 
     /**
      * 面子から三枚の構成牌を取得します。
-     * 槓子の場合, 構成牌の一枚を無視した三枚の構成牌を返します。
+     *
+     * <p>槓子の場合, 構成牌の一枚を無視した三枚の構成牌を返します。
      * @return 長さ3の面子構成牌のリスト
      */
     default List<Tile> getTilesTruncated(){
@@ -89,7 +90,8 @@ public interface Meld extends HandComponent{
 
     /**
      * この面子が副露されたものである場合, 副露元の相対位置を返します。
-     * 副露されたものでない場合, {@code Side.SELF}を返します。
+     *
+     * <p>副露されたものでない場合, {@code Side.SELF}を返します。
      * 暗槓の場合は, {@code Side.SELF}を返します。
      * 加槓の場合は, 元の明刻子の副露元の相対位置を返します。
      * @return 副露元相対位置 この面子が副露面子(暗槓を含まない)の場合
@@ -126,9 +128,10 @@ public interface Meld extends HandComponent{
 
     /**
      * この面子が加槓であるか検査します。
-     * 加槓と大明槓は手牌の点数計算上の差異はありませんが,
+     *
+     * <p>加槓と大明槓は手牌の点数計算上の差異はありませんが,
      * 一般的にグラフィック上の違いを持つため,
-     * ビューの実装が加槓かどうか検査できるようこのメソッドが用意されています。
+     * ビューの実装が, 面子が加槓かどうか検査できるようこのメソッドが用意されています。
      * @return true  加槓の場合
      *         false 加槓でない場合
      */
@@ -136,7 +139,8 @@ public interface Meld extends HandComponent{
 
     /**
      * この面子が暗面子であるかどうか検査します。
-     * 暗槓はこの検査に適合します。ロンによって成立した刻子は適合しません。
+     *
+     * <p>暗槓はこの検査に適合します。ロンによって成立した刻子は適合しません。
      * @return true  暗面子の場合
      *         false 明面子の場合
      */
@@ -144,7 +148,8 @@ public interface Meld extends HandComponent{
 
     /**
      * この面子が副露(他家からのポン, カン, チー)によって成立したかどうか検査します。
-     * 暗槓及びロンによって成立した刻子は適合しません。
+     *
+     * <p>暗槓及びロンによって成立した刻子は適合しません。
      * @return true  副露牌の場合
      *         false 副露牌でない場合
      */
@@ -152,7 +157,8 @@ public interface Meld extends HandComponent{
 
     /**
      * この面子が他家から見える面子であるかどうか検査します。
-     * 副露牌及び暗槓はこの検査に適合します。ロンによって成立した刻子は成立しません。
+     *
+     * <p>副露牌及び暗槓はこの検査に適合します。ロンによって成立した刻子は成立しません。
      * @return true  公開されている場合
      *         false 公開されていない場合
      */
@@ -160,7 +166,8 @@ public interface Meld extends HandComponent{
 
     /**
      * {@inheritDoc}
-     * 面子の符は以下のように計算されます。
+     *
+     * <p>面子の符は以下のように計算されます。
      * 順子の場合は0
      * 刻子の場合は以下の表に従う
      * <table>
@@ -178,7 +185,7 @@ public interface Meld extends HandComponent{
     }
 
     /**
-     * 手牌の面子を作成するファクトリーメソッド
+     * 手牌の面子を作成するファクトリーメソッド。
      * @param tiles 構成牌
      * @return 暗刻または暗順
      */
@@ -187,8 +194,9 @@ public interface Meld extends HandComponent{
     }
 
     /**
-     * ロンした面子を作成するファクトリーメソッド
-     * 指定した構成牌が刻子の構成牌の場合, 面子は明刻になります。
+     * ロンした面子を作成するファクトリーメソッド。
+     *
+     * <p>指定した構成牌が刻子の構成牌の場合, 面子は明刻になります。
      * @param tiles 構成牌
      * @return 副露でない明刻, または暗順
      */
@@ -197,7 +205,7 @@ public interface Meld extends HandComponent{
     }
 
     /**
-     * 副露した面子を作成するファクトリーメソッド
+     * 副露した面子を作成するファクトリーメソッド。
      * @param base 手牌中の構成牌
      * @param called 副露した牌
      * @param source 副露元の相対位置
@@ -210,7 +218,7 @@ public interface Meld extends HandComponent{
     }
 
     /**
-     * 加槓を作成するファクトリーメソッド
+     * 加槓を作成するファクトリーメソッド。
      * @param triple 副露した明刻
      * @param added 加えた牌
      * @return 加槓
@@ -222,7 +230,7 @@ public interface Meld extends HandComponent{
     }
 
     /**
-     * 暗槓を作成するファクトリーメソッド
+     * 暗槓を作成するファクトリーメソッド。
      * @param tiles 暗槓を構成する牌
      * @return 暗槓
      */

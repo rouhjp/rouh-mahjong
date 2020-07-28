@@ -1,5 +1,11 @@
 package jp.rouh.mahjong.tile;
 
+import java.util.List;
+import java.util.stream.Stream;
+
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toList;
+
 /**
  * ある方角{@link Wind}に対する相対位置を表すクラス。
  * @see Wind
@@ -23,7 +29,8 @@ public enum Side{
 
     /**
      * 引数で与えられた方角から, この相対位置に位置する方角を返します。
-     * 例えば次のような等式が成り立ちます。
+     *
+     * <p>例えば次のような等式が成り立ちます。
      * {@code RIGHT.of(Wind.EAST)==Wind.SOUTH }
      * @see Wind
      * @param reference 基準の方角
@@ -35,13 +42,24 @@ public enum Side{
 
     /**
      * 相対位置から, 引数で与えられた相対位置にある相対位置を返します。
-     * 例えば次のような等式が成り立ちます。
+     *
+     * <p>例えば次のような等式が成り立ちます。
      * {@code RIGHT.of(RIGHT)==ACROSS }
      * @param side 合成する相対位置
      * @return 合成結果
      */
     public Side of(Side side){
         return values()[(orderNumber + side.orderNumber)%4];
+    }
+
+    /**
+     * この相対位置以外の相対位置をリスト形式で返します。
+     *
+     * <p>例えば {@code SELF.others()} は, [RIGHT, ACROSS, LEFT]と等価です。
+     * @return 残りの相対位置のリスト
+     */
+    public List<Side> others(){
+        return Stream.of(values()).filter(not(this::equals)).collect(toList());
     }
 
     /**

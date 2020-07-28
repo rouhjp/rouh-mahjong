@@ -29,7 +29,8 @@ public enum Wind{
 
     /**
      * 東南西北の順に習い、次の方角を返します。
-     * 例えば次のような等式が成り立ちます。
+     *
+     * <p>例えば次のような等式が成り立ちます。
      * {@code EAST.next()==SOUTH }
      * {@code NORTH.next()==EAST }
      * @return 次の方角
@@ -40,7 +41,8 @@ public enum Wind{
 
     /**
      * 東南西北の順に習い、n個次の方角を返します。
-     * 例えば次のような等式が成り立ちます。
+     *
+     * <p>例えば次のような等式が成り立ちます。
      * {@code EAST.shift(2)==WEST }
      * {@code EAST.shift(5)==SOUTH }
      * @param n 重み
@@ -52,7 +54,8 @@ public enum Wind{
 
     /**
      * この方角以外の方角をリスト形式で返します。
-     * 例えば {@code SOUTH.others()} は, [EAST, WEST, NORTH]と等価です。
+     *
+     * <p>例えば {@code SOUTH.others()} は, [EAST, WEST, NORTH]と等価です。
      * @return 残りの方角のリスト
      */
     public List<Wind> others(){
@@ -61,7 +64,8 @@ public enum Wind{
 
     /**
      * この方角の, 引数で与えられた基準の方角からみた場合の相対位置を返します。
-     * 例えば以下の等式が成り立ちます。
+     *
+     * <p>例えば以下の等式が成り立ちます。
      * {@code EAST.from(SOUTH)==Side.LEFT }
      * @see Side
      * @param reference 基準の方角
