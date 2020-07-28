@@ -1,2 +1,5 @@
 /.gradle/*
 /.idea/*
+/build/*
+/src/main/java/sample/
+/src/test/java/sample/
