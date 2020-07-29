@@ -14,17 +14,19 @@ import static java.util.stream.Collectors.toList;
  */
 public enum Wind{
     /** 東風 */
-    EAST(0),
+    EAST(0, "東"),
     /** 南風 */
-    SOUTH(1),
+    SOUTH(1, "南"),
     /** 西風 */
-    WEST(2),
+    WEST(2, "西"),
     /** 北風 */
-    NORTH(3);
+    NORTH(3, "北");
     
     private final int orderNumber;
-    Wind(int orderNumber){
+    private final String string;
+    Wind(int orderNumber, String string){
         this.orderNumber = orderNumber;
+        this.string = string;
     }
 
     /**
@@ -87,5 +89,10 @@ public enum Wind{
             case NORTH: return BaseTile.WN;
         }
         throw new AssertionError("implementation error");
+    }
+
+    @Override
+    public String toString(){
+        return string;
     }
 }
