@@ -2,40 +2,24 @@ package jp.rouh.mahjong.score;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 /**
- * 手牌の得点を表す不変クラス。
+ * 手牌の得点を表すインターフェース。
  *
- * <p>手牌に対する得点として符数・翻数・得点区分をまとめた点数表現,
- * 役および親・子によって決定される得点, 役名のリストを保持します。
- *
- * <p>詰み符や供託, 各プレイヤー間の最終的な点数移動等の計算は,
- * このクラスでは扱いません。
- *
+ * <p>ある手牌に対する得点, 点数表現, 役を提供します。
+ * 得点には詰み符や供託を含ません。
  * @see HandScorer
  * @author Rouh
  * @version 1.0
  */
-public class HandScore{
-    private final int score;
-    private final String expression;
-    private final List<String> handTypeNames;
-    private HandScore(int score, String expression, List<String> handTypeNames){
-        this.score = score;
-        this.expression = expression;
-        this.handTypeNames = List.copyOf(handTypeNames);
-    }
+public interface HandScore{
 
     /**
      * 手牌の役をリスト形式で取得します。
      *
-     * <p>役を格納する順番は実装に依存します。
+     * <p>役の順序は手牌点数計算機能{@link HandScorer}の実装に依存します。
      * @return 役のリスト
      */
-    public List<String> getHandTypeNames(){
-        return handTypeNames;
-    }
+    List<HandType> getHandTypes();
 
     /**
      * 点数表現を取得します。
@@ -46,9 +30,7 @@ public class HandScore{
      * 役満の場合は, 符数および翻数は省略されます。
      * @return 点数表現
      */
-    String getScoreExpression(){
-        return expression;
-    }
+    String getScoreExpression();
 
     /**
      * 得点を返します。
@@ -57,49 +39,71 @@ public class HandScore{
      * つまり, この値は詰み符や供託が無い場合, 和了者が得る点数と一致します。
      * @return 得点
      */
-    public int getScore(){
-        return score;
+    int getScore();
+
+    /**
+     * 役無しかどうか検査します。
+     * @return true  役無しの場合
+     *         false 役がある場合
+     */
+    default boolean hasNoType(){
+        return getHandTypes().isEmpty();
     }
 
-    private static HandScore of(int basicPoint, int typePoint,
-                                List<String> handTypeNames, boolean epic, boolean dealer){
-        var baseScore = Scores.baseScoreOf(basicPoint, typePoint);
-        var score = Scores.scoreOf(baseScore, dealer);
-        var sb = new StringBuilder();
-        if(!epic){
-            sb.append(basicPoint);
-            sb.append("符");
-            sb.append(typePoint);
-            sb.append("翻");
-            sb.append(" ");
-        }
+    /**
+     * 通常手の手牌得点オブジェクトを生成します。
+     * @param basicPoint 符
+     * @param handTypes 役
+     * @param dealer 親かどうか
+     * @return 手牌得点
+     */
+    static HandScore of(int basicPoint, List<HandType> handTypes, boolean dealer){
+        int typePoint = handTypes.stream().mapToInt(HandType::getTypePoint).sum();
+        int baseScore = Scores.baseScoreOf(basicPoint, typePoint);
+        int score = Scores.scoreOf(baseScore, dealer);
         var scoreClass = Scores.scoreClassOf(baseScore);
-        if(!scoreClass.isEmpty()){
-            sb.append(scoreClass);
-            sb.append(" ");
-        }
-        sb.append(score);
-        sb.append("点");
-        return new HandScore(score, sb.toString(), handTypeNames);
+        var expression = Scores.scoreExpressionOf(basicPoint, typePoint, score, scoreClass);
+        return new HandScore(){
+            @Override
+            public List<HandType> getHandTypes(){
+                return handTypes;
+            }
+            @Override
+            public String getScoreExpression(){
+                return expression;
+            }
+            @Override
+            public int getScore(){
+                return score;
+            }
+        };
     }
 
-    public static HandScore of(int basicPoint, int typePoint, List<String> handTypeNames, boolean dealer){
-        return of(basicPoint, typePoint, handTypeNames, false, dealer);
-    }
-
-    public static HandScore ofEpic(int epicTypePoint, List<String> handTypeNames, boolean dealer){
-        return of(0, epicTypePoint, handTypeNames, true, dealer);
-    }
-
-    public static HandScore of(int basicPoint, List<HandType> handTypes, boolean dealer){
-        var typePoint = handTypes.stream().mapToInt(HandType::getTypePoint).sum();
-        var handTypeNames = handTypes.stream().map(HandType::getName).collect(toList());
-        return of(basicPoint, typePoint, handTypeNames, dealer);
-    }
-
-    public static HandScore ofEpic(List<HandType> handTypes, boolean dealer){
-        var epicTypePoint = handTypes.stream().mapToInt(HandType::getTypePoint).sum();
-        var handTypeNames = handTypes.stream().map(HandType::getName).collect(toList());
-        return ofEpic(epicTypePoint, handTypeNames, dealer);
+    /**
+     * 役満手の手牌得点オブジェクトを生成します。
+     * @param handTypes 役
+     * @param dealer 親かどうか
+     * @return 手牌得点
+     */
+    static HandScore ofEpic(List<HandType> handTypes, boolean dealer){
+        int epicMultiplier = handTypes.stream().mapToInt(HandType::getTypePoint).sum();
+        int baseScore = Scores.baseScoreOfEpic(epicMultiplier);
+        int score = Scores.scoreOf(baseScore, dealer);
+        var scoreClass = Scores.scoreClassOf(baseScore);
+        var expression = Scores.scoreExpressionOfEpic(score, scoreClass);
+        return new HandScore(){
+            @Override
+            public List<HandType> getHandTypes(){
+                return handTypes;
+            }
+            @Override
+            public String getScoreExpression(){
+                return expression;
+            }
+            @Override
+            public int getScore(){
+                return score;
+            }
+        };
     }
 }

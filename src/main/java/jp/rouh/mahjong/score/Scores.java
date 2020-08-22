@@ -12,6 +12,29 @@ public final class Scores{
     }
 
     /**
+     * 役満手の点数表現を取得します。
+     * @param score 点数
+     * @param scoreClass 点数区分
+     * @return 点数表現
+     */
+    public static String scoreExpressionOfEpic(int score, String scoreClass){
+        return scoreClass + " " + score + "点";
+    }
+
+    /**
+     * 通常手の点数表現を取得します。
+     * @param basicPoint 符
+     * @param typePoint 翻
+     * @param score 点数
+     * @param scoreClass 点数区分
+     * @return 点数表現
+     */
+    public static String scoreExpressionOf(int basicPoint, int typePoint, int score, String scoreClass){
+        return basicPoint + "符" + typePoint + "翻 " +
+                (scoreClass.isEmpty()?"":scoreClass + " ") + score + "点";
+    }
+
+    /**
      * 基本点に対応する点数区分を返します。
      *
      * <p>点数区分として, 満貫, 跳満, 倍満, 三倍満, 役満
@@ -62,11 +85,11 @@ public final class Scores{
 
     /**
      * 役満の基本点を返します。
-     * @param multiplier 役満の倍数
+     * @param epicMultiplier 役満の倍数
      * @return 基本点
      */
-    public static int baseScoreOf(int multiplier){
-        return 8000*multiplier;
+    public static int baseScoreOfEpic(int epicMultiplier){
+        return 8000*epicMultiplier;
     }
 
     /**

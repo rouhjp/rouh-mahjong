@@ -7,7 +7,7 @@ import jp.rouh.mahjong.score.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StandardFormattedHandScorer extends ParallelHandScorer{
+public class StandardHandScorer extends ParallelHandScorer{
     @Override
     public HandScore calculate(FormattedHand hand, WinningContext context){
         var feature = new HandFeature(hand, context);

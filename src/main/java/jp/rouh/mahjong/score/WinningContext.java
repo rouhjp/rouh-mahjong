@@ -6,7 +6,7 @@ import jp.rouh.mahjong.tile.Wind;
 import java.util.List;
 
 /**
- * 役の判定に際して必要となる勝利時の情況を表すインターフェース
+ * 役の判定に際して必要となる勝利時の情況を表すインターフェース。
  * @author Rouh
  * @version 1.0
  */
@@ -52,7 +52,7 @@ public interface WinningContext{
      * @return true  ダブル立直の場合
      *         false ダブル立直でない場合
      */
-    boolean isDoubleReady();
+    boolean isFirstAroundReady();
 
     /**
      * この和了が一発かどうか検査します。

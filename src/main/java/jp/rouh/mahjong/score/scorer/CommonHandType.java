@@ -20,14 +20,14 @@ public enum CommonHandType implements HandType{
     READY("立直", 1){
         @Override
         public boolean define(FormattedHand hand, HandFeature feature, WinningContext context){
-            return context.isReady() && !context.isDoubleReady();
+            return context.isReady() && !context.isFirstAroundReady();
         }
     },
 
     DOUBLE_READY("両立直", 2){
         @Override
         public boolean define(FormattedHand hand, HandFeature feature, WinningContext context){
-            return context.isDoubleReady();
+            return context.isFirstAroundReady();
         }
     },
 
