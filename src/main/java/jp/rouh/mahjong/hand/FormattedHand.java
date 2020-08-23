@@ -99,24 +99,6 @@ public interface FormattedHand{
     List<Meld> getMelds();
 
     /**
-     * 手牌のうち副露または暗槓されていない面子を返します。
-     * ただし手牌が七対子や国士無双といった特殊形の場合例外をスローします。<br>
-     * 例外の発生を防ぐためには, {@link #isMeldHand()}で事前検査する必要があります。
-     * @throws UnsupportedOperationException 面子形ではない場合
-     * @return 公開されていない面子
-     */
-    List<Meld> getHandMelds();
-
-    /**
-     * 手牌のうち副露または暗槓された面子を返します。
-     * ただし手牌が七対子や国士無双といった特殊形の場合例外をスローします。<br>
-     * 例外の発生を防ぐためには, {@link #isMeldHand()}で事前検査する必要があります。
-     * @throws UnsupportedOperationException 面子形ではない場合
-     * @return 公開された面子
-     */
-    List<Meld> getOpenMelds();
-
-    /**
      * 手牌の構成要素をリストとして返します。<br>
      * @throws UnsupportedOperationException 面子形ではない場合
      * @return 手牌構成要素のリスト
@@ -167,11 +149,11 @@ public interface FormattedHand{
                 var melds = new OperableList<>(meldTilesList)
                         .removed(meldTiles)
                         .stream()
-                        .map(Meld::of)
+                        .map(Meld::makeHandMeld)
                         .collect(toList());
                 var winningMeld = selfDraw?
-                        Meld.of(meldTiles):
-                        Meld.ofGrabbed(meldTiles);
+                        Meld.makeHandMeld(meldTiles):
+                        Meld.makeClaimedHandMeld(meldTiles);
                 melds.add(winningMeld);
                 var wait = Wait.of(winningMeld, winningTile);
                 hands.add(new MeldHand(head, melds, openMelds, wait));

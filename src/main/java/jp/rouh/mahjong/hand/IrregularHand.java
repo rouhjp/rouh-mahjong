@@ -42,16 +42,6 @@ abstract class IrregularHand implements FormattedHand{
     }
 
     @Override
-    public List<Meld> getHandMelds(){
-        throw new UnsupportedOperationException("no melds in irregular hand");
-    }
-
-    @Override
-    public List<Meld> getOpenMelds(){
-        throw new UnsupportedOperationException("no melds in irregular hand");
-    }
-
-    @Override
     public List<HandComponent> getComponents(){
         throw new UnsupportedOperationException("no components in irregular hand");
     }
@@ -78,7 +68,7 @@ abstract class IrregularHand implements FormattedHand{
      */
     public static Optional<IrregularHand> tryGetSevenPairs(List<Tile> handTiles){
         return HandFunctions.isSevenPairsHand(handTiles)?
-                Optional.of(ofSevenPairs(handTiles)):Optional.empty();
+                Optional.of(new SevenPairsHand(handTiles)):Optional.empty();
     }
 
     /**
@@ -88,32 +78,35 @@ abstract class IrregularHand implements FormattedHand{
      */
     public static Optional<IrregularHand> tryGetThirteenOrphans(List<Tile> handTiles){
         return HandFunctions.isThirteenOrphansHand(handTiles)?
-                Optional.of(ofThirteenOrphans(handTiles)):Optional.empty();
+                Optional.of(new ThirteenOrphansHand(handTiles)):Optional.empty();
     }
 
-    private static IrregularHand ofSevenPairs(List<Tile> handTiles){
-        return new IrregularHand(handTiles){
-            @Override
-            public boolean isSevenPairsHand(){
-                return true;
-            }
-            @Override
-            public boolean isThirteenOrphansHand(){
-                return false;
-            }
-        };
+    private static class SevenPairsHand extends IrregularHand{
+        private SevenPairsHand(List<Tile> handTiles){
+            super(handTiles);
+        }
+        @Override
+        public boolean isSevenPairsHand(){
+            return true;
+        }
+        @Override
+        public boolean isThirteenOrphansHand(){
+            return false;
+        }
     }
 
-    private static IrregularHand ofThirteenOrphans(List<Tile> handTiles){
-        return new IrregularHand(handTiles){
-            @Override
-            public boolean isSevenPairsHand(){
-                return false;
-            }
-            @Override
-            public boolean isThirteenOrphansHand(){
-                return true;
-            }
-        };
+    private static class ThirteenOrphansHand extends IrregularHand{
+        private ThirteenOrphansHand(List<Tile> handTiles){
+            super(handTiles);
+
+        }
+        @Override
+        public boolean isSevenPairsHand(){
+            return false;
+        }
+        @Override
+        public boolean isThirteenOrphansHand(){
+            return true;
+        }
     }
 }

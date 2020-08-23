@@ -14,13 +14,13 @@ import static java.util.stream.Collectors.toList;
  */
 class MeldHand implements FormattedHand{
     private final Head head;
-    private final List<Meld> handMelds;
-    private final List<Meld> openMelds;
+    private final List<Meld> melds;
     private final Wait wait;
     MeldHand(Head head, List<Meld> handMelds, List<Meld> openMelds, Wait wait){
         this.head = head;
-        this.handMelds = handMelds;
-        this.openMelds = openMelds;
+        this.melds = new ArrayList<>();
+        this.melds.addAll(handMelds);
+        this.melds.addAll(openMelds);
         this.wait = wait;
     }
 
@@ -28,41 +28,34 @@ class MeldHand implements FormattedHand{
     public boolean isMeldHand(){
         return true;
     }
+
     @Override
     public boolean isSevenPairsHand(){
         return false;
     }
+
     @Override
     public boolean isThirteenOrphansHand(){
         return false;
     }
+
     @Override
     public Head getHead(){
         return head;
     }
+
     @Override
     public List<Meld> getMelds(){
-        var melds = new ArrayList<Meld>(4);
-        melds.addAll(handMelds);
-        melds.addAll(openMelds);
         return melds;
     }
-    @Override
-    public List<Meld> getHandMelds(){
-        return handMelds;
-    }
-    @Override
-    public List<Meld> getOpenMelds(){
-        return openMelds;
-    }
+
     @Override
     public List<HandComponent> getComponents(){
-        var components = new ArrayList<HandComponent>();
+        var components = new ArrayList<HandComponent>(melds);
         components.add(head);
-        components.addAll(handMelds);
-        components.addAll(openMelds);
         return components;
     }
+
     @Override
     public List<Tile> getTilesSorted(){
         return getComponents().stream()
@@ -71,6 +64,7 @@ class MeldHand implements FormattedHand{
                 .sorted(Tile.comparator())
                 .collect(toList());
     }
+
     @Override
     public List<Tile> getTilesTruncated(){
         var meldTiles = getMelds().stream()
@@ -81,6 +75,7 @@ class MeldHand implements FormattedHand{
         meldTiles.sort(Tile.comparator());
         return meldTiles;
     }
+
     @Override
     public Wait getWait(){
         return wait;

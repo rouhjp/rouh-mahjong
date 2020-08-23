@@ -4,56 +4,22 @@ import jp.rouh.mahjong.tile.Side;
 import jp.rouh.mahjong.tile.Tile;
 import jp.rouh.mahjong.tile.Tiles;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 面子を表すインターフェース。
  *
  * <p>副露などの場に出た面子や, 得点計算の際の並べ替え時に利用されます。
- * TODO: write specific document
- * <table>
- * <tr><th>種類</th>
- *     <th>{@link #isConcealed}</th>
- *     <th>{@link #isCalled}</th>
- *     <th>{@link #isExposed}</th>
- *     <th>{@link #isAddQuad}</th></tr>
- * <tr><th>手牌中の刻子</th>
- *     <td>{@code true}</td>
- *     <td>{@code false}</td>
- *     <td>{@code false}</td>
- *     <td>{@code false}</td></tr>
- * <tr><th>手牌中のロンした刻子</th>
- *     <td>{@code false}</td>
- *     <td>{@code false}</td>
- *     <td>{@code false}</td>
- *     <td>{@code false}</td></tr>
- * <tr><th>ポンした刻子</th>
- *     <td>{@code false}</td>
- *     <td>{@code true}</td>
- *     <td>{@code true}</td>
- *     <td>{@code false}</td></tr>
- * <tr><th>暗槓</th>
- *     <td>{@code true}</td>
- *     <td>{@code false}</td>
- *     <td>{@code true}</td>
- *     <td>{@code false}</td></tr>
- * <tr><th>大明槓</th>
- *     <td>{@code false}</td>
- *     <td>{@code true}</td>
- *     <td>{@code true}</td>
- *     <td>{@code false}</td></tr>
- * <tr><th>加槓</th>
- *     <td>{@code false}</td>
- *     <td>{@code true}</td>
- *     <td>{@code true}</td>
- *     <td>{@code true}</td></tr>
- * </table>
- *
- * @see HandMeld
- * @see CalledMeld
- * @see SelfQuad
- * @see AddQuad
+ * <p>面子の生成は, 副露, 暗槓, 手牌からの並べ替えの3種類です。
+ * このインターフェースではこれら全てに対応するファクトリーメソッドが
+ * 提供されています。このうち, 手牌からの並べ替えによる生成は,
+ * {@link #makeHandMeld}と{@link #makeClaimedHandMeld}
+ * の２つのメソッドが提供されています。これは, ロン牌を含んだ刻子は
+ * 明刻扱いになることに起因しています。ロン牌を含む面子を生成する際には
+ * 後者を利用することで, 適切に明刻が生成されます。
+ * <p>このインターフェースは, 得点計算上の要素のみならず, 副露や暗槓
+ * といった公開された面子の描画のため, {@link #isAddQuad()}および
+ * {@link #isSelfQuad()}メソッドが提供されています。
  *
  * @see HandComponent
  * @author Rouh
@@ -84,9 +50,7 @@ public interface Meld extends HandComponent{
      * <p>槓子の場合, 構成牌の一枚を無視した三枚の構成牌を返します。
      * @return 長さ3の面子構成牌のリスト
      */
-    default List<Tile> getTilesTruncated(){
-        return getTilesSorted().subList(0, 3);
-    }
+    List<Tile> getTilesTruncated();
 
     /**
      * この面子が副露されたものである場合, 副露元の相対位置を返します。
@@ -104,27 +68,21 @@ public interface Meld extends HandComponent{
      * @return true  順子の場合
      *         false 順子でない場合
      */
-    default boolean isStraight(){
-        return getTilesSorted().size()==3 && !getLast().equalsIgnoreRed(getLast());
-    }
+    boolean isStraight();
 
     /**
      * この面子が刻子であるか検査します。
      * @return true  刻子の場合
      *         false 刻子でない場合
      */
-    default boolean isTriple(){
-        return getTilesSorted().size()==3 && getFirst().equalsIgnoreRed(getLast());
-    }
+    boolean isTriple();
 
     /**
      * この面子が槓子であるか検査します。
      * @return true  槓子の場合
      *         false 槓子でない場合
      */
-    default boolean isQuad(){
-        return getTilesSorted().size()==4;
-    }
+    boolean isQuad();
 
     /**
      * この面子が加槓であるか検査します。
@@ -138,6 +96,13 @@ public interface Meld extends HandComponent{
     boolean isAddQuad();
 
     /**
+     * この面子が暗槓であるか検査します。
+     * @return true  暗槓の場合
+     *         false 暗槓でない場合
+     */
+    boolean isSelfQuad();
+
+    /**
      * この面子が暗面子であるかどうか検査します。
      *
      * <p>暗槓はこの検査に適合します。ロンによって成立した刻子は適合しません。
@@ -147,25 +112,7 @@ public interface Meld extends HandComponent{
     boolean isConcealed();
 
     /**
-     * この面子が副露(他家からのポン, カン, チー)によって成立したかどうか検査します。
-     *
-     * <p>暗槓及びロンによって成立した刻子は適合しません。
-     * @return true  副露牌の場合
-     *         false 副露牌でない場合
-     */
-    boolean isCalled();
-
-    /**
-     * この面子が他家から見える面子であるかどうか検査します。
-     *
-     * <p>副露牌及び暗槓はこの検査に適合します。ロンによって成立した刻子は成立しません。
-     * @return true  公開されている場合
-     *         false 公開されていない場合
-     */
-    boolean isExposed();
-
-    /**
-     * {@inheritDoc}
+     * この面子の符を計算し取得します。
      *
      * <p>面子の符は以下のように計算されます。
      * 順子の場合は0
@@ -179,63 +126,114 @@ public interface Meld extends HandComponent{
      * </table>
      * @return 面子の符
      */
-    default int getMeldBasicPoint(){
-        if(isStraight()) return 0;
-        return 2*(isQuad()?4:1)*(isConcealed()?2:1)*(isTerminal()?2:1);
-    }
+    int getMeldBasicPoint();
 
     /**
-     * 手牌の面子を作成するファクトリーメソッド。
+     * 手牌から面子を生成します。
+     *
+     * <p>この操作で生成された面子は副露ではありません。
+     * 手牌の点数計算に用いるため手牌の一部を面子として
+     * 解釈する際に利用されます。
      * @param tiles 構成牌
+     * @throws IllegalArgumentException 構成牌が刻子でも順子でもない場合
      * @return 暗刻または暗順
      */
-    static Meld of(List<Tile> tiles){
-        return new HandMeld(tiles, true);
+    static Meld makeHandMeld(List<Tile> tiles){
+        if(!Tiles.isStraight(tiles) && !Tiles.isTriple(tiles)){
+            throw new IllegalArgumentException();
+        }
+        return new BaseMeld(tiles, true);
     }
 
     /**
-     * ロンした面子を作成するファクトリーメソッド。
+     * 手牌からロンによる和了牌を含む面子を生成します。
      *
      * <p>指定した構成牌が刻子の構成牌の場合, 面子は明刻になります。
+     * <p>この操作で生成された面子は副露ではありません。
+     * 手牌の点数計算に用いるため手牌の一部を面子として
+     * 解釈する際に利用されます。
      * @param tiles 構成牌
+     * @throws IllegalArgumentException 構成牌が刻子でも順子でもない場合
      * @return 副露でない明刻, または暗順
      */
-    static Meld ofGrabbed(List<Tile> tiles){
-        return new HandMeld(tiles, Tiles.isTriple(tiles));
+    static Meld makeClaimedHandMeld(List<Tile> tiles){
+        if(!Tiles.isStraight(tiles) && !Tiles.isTriple(tiles)){
+            throw new IllegalArgumentException();
+        }
+        boolean concealed = !Tiles.isTriple(tiles);
+        return new BaseMeld(tiles, concealed);
     }
 
     /**
-     * 副露した面子を作成するファクトリーメソッド。
-     * @param base 手牌中の構成牌
-     * @param called 副露した牌
-     * @param source 副露元の相対位置
-     * @return 副露した明刻, 明順, 明槓
+     * ポンによって明刻を生成します。
+     * @param base 手牌中の構成牌のリスト(長さ2)
+     * @param called 副露牌
+     * @param source 副露元
+     * @throws IllegalArgumentException 構成牌が刻子でない場合
+     *                                  副露元に自家を指定した場合
+     * @return 明刻
      */
-    static Meld ofCalled(List<Tile> base, Tile called, Side source){
-        var allTiles = new ArrayList<>(base);
-        allTiles.add(called);
-        return new CalledMeld(allTiles, called, source);
+    static Meld callTriple(List<Tile> base, Tile called, Side source){
+        if(base.size()!=2 || !Tiles.isTriple(List.of(base.get(0), base.get(1), called))){
+            throw new IllegalArgumentException();
+        }
+        return new BaseMeld(base, called, source);
     }
 
     /**
-     * 加槓を作成するファクトリーメソッド。
-     * @param triple 副露した明刻
-     * @param added 加えた牌
-     * @return 加槓
+     * カンによって大明槓を生成します。
+     * @param base 手牌中の構成牌のリスト(長さ3)
+     * @param called 副露牌
+     * @param source 副露元
+     * @throws IllegalArgumentException 構成牌が槓子を構成し得ない場合
+     * @return 明槓
      */
-    static Meld ofAdded(CalledMeld triple, Tile added){
-        var allTiles = new ArrayList<>(triple.getTilesSorted());
-        allTiles.add(added);
-        return new AddQuad(allTiles, triple.getCalledTile(), added, triple.getSourceSide());
+    static Meld callQuad(List<Tile> base, Tile called, Side source){
+        if(base.size()!=3 || !Tiles.isQuad(List.of(base.get(0), base.get(1), base.get(2), called))){
+            throw new IllegalArgumentException();
+        }
+        return new BaseMeld(base, called, source);
     }
 
     /**
-     * 暗槓を作成するファクトリーメソッド。
-     * @param tiles 暗槓を構成する牌
+     * カンによって暗槓を生成します。
+     * @param base 手牌中の構成牌のリスト(長さ4)
+     * @throws IllegalArgumentException 構成牌が槓子を構成し得ない場合
      * @return 暗槓
      */
-    static Meld ofSelfQuad(List<Tile> tiles){
-        return new SelfQuad(tiles);
+    static Meld makeSelfQuad(List<Tile> base){
+        if(!Tiles.isQuad(base)){
+            throw new IllegalArgumentException();
+        }
+        return new BaseMeld(base, true);
     }
 
+    /**
+     * カンによって加槓を生成します。
+     * @param triple 元となる明刻
+     * @param tile 追加牌
+     * @throws IllegalArgumentException 指定された面子が刻子でない場合
+     *                                  追加牌と刻子が加槓を構成し得ない場合
+     * @return 加槓
+     */
+    static Meld makeAddQuad(Meld triple, Tile tile){
+        if(!triple.isTriple() || !triple.getFirst().equalsIgnoreRed(tile)){
+            throw new IllegalArgumentException();
+        }
+        return new BaseMeld(triple, tile);
+    }
+
+    /**
+     * チーによって順子を生成します。
+     * @param base 手牌中の構成牌のリスト(長さ2)
+     * @param called 副露牌
+     * @throws IllegalArgumentException 構成牌が順子を構成しない場合
+     * @return 明順
+     */
+    static Meld callStraight(List<Tile> base, Tile called){
+        if(base.size()!=2 || !Tiles.isStraight(List.of(base.get(0), base.get(1), called))){
+            throw new IllegalArgumentException();
+        }
+        return new BaseMeld(base, called, Side.LEFT);
+    }
 }
