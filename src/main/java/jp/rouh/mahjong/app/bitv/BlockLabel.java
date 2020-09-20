@@ -1,7 +1,6 @@
 package jp.rouh.mahjong.app.bitv;
 
 import jp.rouh.mahjong.app.bitv.image.BlockImages;
-import jp.rouh.mahjong.tile.Side;
 import jp.rouh.mahjong.tile.Tile;
 
 import javax.swing.*;
@@ -14,25 +13,12 @@ import java.awt.image.BufferedImage;
  * @author Rouh
  * @version 1.0
  */
-public class BlockLabel extends JLabel{
+public class BlockLabel extends TableLabel{
     private BlockLabel(BufferedImage image){
         setIcon(new ImageIcon(image));
         setHorizontalAlignment(CENTER);
         setBorder(new LineBorder(Color.BLACK));
         setSize(image.getWidth(), image.getHeight());
-    }
-
-    /**
-     * 指定した座標に中心が来るよう移動します。
-     *
-     * <p>{@link Component#setLocation}メソッドでは
-     * コンポーネントの左上を指定した座標に合わせる形で移動を行いますが,
-     * このメソッドでは, 画像の中心が座標に合わせられます。
-     * @param x 移動先のx座標
-     * @param y 移動先のy座標
-     */
-    public void setLocationCentered(int x, int y){
-        super.setLocation(x - getWidth()/2, y - getHeight()/2);
     }
 
     /**

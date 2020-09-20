@@ -3,6 +3,10 @@ package jp.rouh.util;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
@@ -15,8 +19,8 @@ import static java.util.stream.Collectors.toList;
  * @author Rouh
  * @version 1.0
  */
-@SuppressWarnings("unused")
 public class OperableList<E> extends ArrayList<E>{
+
     /**
      * 空のリストを作成します。
      */
@@ -34,22 +38,46 @@ public class OperableList<E> extends ArrayList<E>{
 
     /**
      * 指定されたコレクションの要素が含まれているリストを、要素がコレクションのイテレータによって返される順序で作成します。
-     * @param c コレクション
+     * @param collection コレクション
      */
-    public OperableList(Collection<? extends E> c){
-        super(c);
+    public OperableList(Collection<? extends E> collection){
+        super(collection);
+    }
+
+    /**
+     * このリストが指定した述語関数に適合する要素を含むかどうか検査します。
+     * @param predicate 述語関数
+     * @return true  適合する要素を含む場合
+     *         false 適合する要素を含まない場合
+     */
+    public boolean contains(Predicate<? super E> predicate){
+        return indexOf(predicate)!=-1;
+    }
+
+    /**
+     * このリストが指定したコレクション中の重複を含む全ての要素を内包しているかどうか検査します。
+     *
+     * <p>{List#containsAll}と異なり, 与えられたコレクションに重複する要素がある場合
+     * このリストも同数以上の重複した要素を含んでいなければ検査に適合しません。
+     * @param collection 検査する要素のコレクション
+     * @return true  内包している場合
+     *         false 内包していない場合
+     */
+    public boolean containsWhole(Collection<? super E> collection){
+        var tmp = new OperableList<>(collection);
+        return stream().allMatch(tmp::remove);
     }
 
     /**
      * 指定した述語関数に適合する最初の要素の位置を取得します。
-     * @param p 述語関数
+     * @param predicate 述語関数
      * @return 適合する要素の位置
      *         -1 適合する要素が見つからなかった場合
      */
-    public int indexOf(Predicate<? super E> p){
-        Objects.requireNonNull(p);
+    public int indexOf(Predicate<? super E> predicate){
+        Objects.requireNonNull(predicate);
         for(int i = 0; i<size(); i++){
-            if(p.test(get(i))){
+            if(predicate.test(get(i))){
                 return i;
             }
         }
@@ -58,14 +86,14 @@ public class OperableList<E> extends ArrayList<E>{
 
     /**
      * 指定した述語関数に適合する最後の要素の位置を取得します。
-     * @param p 述語関数
+     * @param predicate 述語関数
      * @return 適合する要素の位置
      *         -1 適合する要素が見つからなかった場合
      */
-    public int lastIndexOf(Predicate<? super E> p){
-        Objects.requireNonNull(p);
+    public int lastIndexOf(Predicate<? super E> predicate){
+        Objects.requireNonNull(predicate);
         for(int i = size() - 1; i>=0; i--){
-            if(p.test(get(i))){
+            if(predicate.test(get(i))){
                 return i;
             }
         }
@@ -74,11 +102,11 @@ public class OperableList<E> extends ArrayList<E>{
 
     /**
      * 指定した述語関数に適合する要素の数を返します。
-     * @param p 述語関数
+     * @param predicate 述語関数
      * @return 適合する要素数
      */
-    public int countIf(Predicate<? super E> p){
-        return (int)stream().filter(p).count();
+    public int countIf(Predicate<? super E> predicate){
+        return (int)stream().filter(predicate).count();
     }
 
     /**
@@ -100,9 +128,20 @@ public class OperableList<E> extends ArrayList<E>{
      * @param comparator 要素のコンパレータ
      * @return ソート済みリスト
      */
-    public OperableList<E> sorted(Comparator<E> comparator){
+    public OperableList<E> sorted(Comparator<? super E> comparator){
         sort(comparator);
         return this;
+    }
+
+    /**
+     * ソート処理{@link Collections#sort}を実施した後, 自身の参照を返します。
+     * @throws ClassCastException 要素が{@link Comparable}インターフェースを実装していない場合
+     * @return ソート済みリスト
+     */
+    public OperableList<E> sorted(){
+        @SuppressWarnings("unchecked")
+        var comparator = (Comparator<? super E>) Comparator.naturalOrder();
+        return sorted(comparator);
     }
 
     /**
@@ -126,11 +165,11 @@ public class OperableList<E> extends ArrayList<E>{
 
     /**
      * 追加処理{@link List#add}を実施した後, 自身の参照を返します。
-     * @param e 追加する要素
+     * @param element 追加する要素
      * @return 要素を追加したリスト
      */
-    public OperableList<E> added(E e){
-        add(e);
+    public OperableList<E> added(E element){
+        add(element);
         return this;
     }
 
@@ -146,11 +185,11 @@ public class OperableList<E> extends ArrayList<E>{
 
     /**
      * 削除処理{@link List#remove}を実施した後, 自身の参照を返します。
-     * @param e 削除する要素
+     * @param element 削除する要素
      * @return 要素を削除したリスト
      */
-    public OperableList<E> removed(E e){
-        remove(e);
+    public OperableList<E> removed(E element){
+        remove(element);
         return this;
     }
 
@@ -183,6 +222,14 @@ public class OperableList<E> extends ArrayList<E>{
     public OperableList<E> removedEach(Collection<? extends E> collection){
         collection.forEach(this::remove);
         return this;
+    }
+
+    /**
+     * このリストを不変リストに変換します。
+     * @return 不変リスト
+     */
+    public List<E> toUnmodifiable(){
+        return List.copyOf(this);
     }
 
     /**
@@ -248,7 +295,7 @@ public class OperableList<E> extends ArrayList<E>{
         private final int combinationSize;
         private final int collectionSize;
         private final List<List<Integer>> allCombinationIndexes;
-        public CombinationSupport(int combinationSize, int collectionSize){
+        private CombinationSupport(int combinationSize, int collectionSize){
             this.combinationSize = combinationSize;
             this.collectionSize = collectionSize;
             this.allCombinationIndexes = new ArrayList<>();
@@ -284,5 +331,20 @@ public class OperableList<E> extends ArrayList<E>{
             list.addAll(Arrays.asList(elements));
         }
         return list;
+    }
+
+    /**
+     * 指定されたコレクションが{@link OperableList}であればその参照を, そうでなければコンストラクタ
+     * {@link OperableList#OperableList(Collection collection)}にて新たにリストを生成します。
+     * @param collection コレクション
+     * @return リスト
+     */
+    public static <E> OperableList<E> copyOf(Collection<? extends E> collection){
+        if(collection instanceof OperableList){
+            @SuppressWarnings("unchecked")
+            var casted = (OperableList<E>)collection;
+            return casted;
+        }
+        return new OperableList<>(collection);
     }
 }

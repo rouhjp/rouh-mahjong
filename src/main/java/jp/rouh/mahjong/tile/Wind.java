@@ -1,6 +1,8 @@
 package jp.rouh.mahjong.tile;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static java.util.function.Predicate.not;
@@ -64,6 +66,10 @@ public enum Wind{
         return Stream.of(values()).filter(not(this::equals)).collect(toList());
     }
 
+//    public void iterate(Consumer<Wind> action){
+//        Stream.iterate(this, Wind::next).limit(4).forEachOrdered(action);
+//    }
+
     /**
      * この方角の, 引数で与えられた基準の方角からみた場合の相対位置を返します。
      *
@@ -83,10 +89,10 @@ public enum Wind{
      */
     public Tile toTile(){
         switch(this){
-            case EAST: return BaseTile.WE;
-            case SOUTH: return BaseTile.WS;
-            case WEST: return BaseTile.WW;
-            case NORTH: return BaseTile.WN;
+            case EAST: return Tile.WE;
+            case SOUTH: return Tile.WS;
+            case WEST: return Tile.WW;
+            case NORTH: return Tile.WN;
         }
         throw new AssertionError("implementation error");
     }

@@ -86,12 +86,6 @@ public interface WinningContext{
     WinningType getWinningType();
 
     /**
-     * 和了牌を取得します。
-     * @return 和了牌
-     */
-    Tile getWinningTile();
-
-    /**
      * 和了プレイヤーがカンを宣言した回数を取得します。
      * @return カン回数
      */

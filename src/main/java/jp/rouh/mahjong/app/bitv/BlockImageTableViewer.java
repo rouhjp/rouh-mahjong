@@ -1,39 +1,27 @@
 package jp.rouh.mahjong.app.bitv;
 
-import jp.rouh.mahjong.hand.Meld;
-import jp.rouh.mahjong.table.PlayerBoard;
-import jp.rouh.mahjong.table.TableStrategy;
-import jp.rouh.mahjong.table.TurnAction;
-import jp.rouh.mahjong.tile.Side;
-import jp.rouh.mahjong.tile.Tile;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class BlockImageTableViewer extends JFrame implements TableStrategy{
+public class BlockImageTableViewer extends JFrame /* implements TableStrategy */{
     private final BlockImageTable table = new BlockImageTable();
+    private final ControlPanel controlPanel = new ControlPanel();
     public BlockImageTableViewer(){
         setTitle("麻雀");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        getContentPane().setPreferredSize(new Dimension(600, 600));
+        getContentPane().setPreferredSize(new Dimension(600, 730));
         pack();
         setLayout(null);
         table.setLocation(10, 10);
+        controlPanel.setLocation(10, 600);
         add(table);
+        add(controlPanel);
+        controlPanel.updateHand(List.of("M1", "M2", "M3"));
         setVisible(true);
     }
 
-    @Override
-    public TurnAction moveTurnPhase(List<TurnAction> choices){
-        //TODO: implementation
-        return null;
-    }
-
-    @Override
-    public void seatUpdated(Side side, PlayerBoard board){
-        //TODO: implementation
-    }
+/*
 
     @Override
     public void diceRolled(Side side, int d1, int d2){
@@ -74,7 +62,6 @@ public class BlockImageTableViewer extends JFrame implements TableStrategy{
 
     @Override
     public void meldAdded(Side side, Meld meld){
-        assert meld.isExposed();
         var direction = Direction.of(side);
         var tileArray = meld.getTilesFormed().toArray(new Tile[0]);
         switch(meld.getSourceSide()){
@@ -99,4 +86,23 @@ public class BlockImageTableViewer extends JFrame implements TableStrategy{
         var additionalTile = meld.getTilesFormed().get(4);
         table.putAdditionalMeldTile(Direction.of(side), index, additionalTile);
     }
+    @Override
+    public void tileDrawn(Side side){
+
+    }
+    @Override
+    public void tileDrawn(Side side, Tile tile){
+
+    }
+    @Override
+    public void readyDeclared(Side side){
+
+    }
+    @Override
+    public void roundStarted(Wind wind, int count, int streak, int bets){
+
+    }
+
+
+ */
 }

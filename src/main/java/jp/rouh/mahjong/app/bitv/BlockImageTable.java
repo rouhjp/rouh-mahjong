@@ -1,11 +1,13 @@
 package jp.rouh.mahjong.app.bitv;
 
 import jp.rouh.mahjong.tile.Tile;
+import jp.rouh.mahjong.tile.Wind;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -16,17 +18,19 @@ import java.util.function.UnaryOperator;
  * @version 1.0
  */
 public class BlockImageTable extends JLayeredPane{
-    private static final int MELD_MARGIN = BlockLabel.WIDTH/2;
     static final int BLOCK_WIDTH = 20;
     static final int BLOCK_HEIGHT = 30;
     static final int TABLE_WIDTH = 580;
     static final int TABLE_HEIGHT = 580;
+    private static final int MELD_MARGIN = BLOCK_WIDTH/2;
     private final Map<Direction, AreaInfo> areaInfo = new HashMap<>();
 
     /**
      * 画面方向ごとの各種内部情報を保持するクラス。
      */
     private static class AreaInfo{
+        /** リーチ棒ラベルの参照 */
+        private TableLabel readyBarReference;
         /** 捨て牌の牌ラベルの参照 */
         private final BlockLabel[] riverBlockReference = new BlockLabel[24];
         /** 山牌の牌ラベルの参照 */
@@ -64,6 +68,15 @@ public class BlockImageTable extends JLayeredPane{
         setLayer(label, z*TABLE_HEIGHT + y);
     }
 
+    void putHandTiles(Direction d, List<Tile> tiles){
+        for(int i = 0; i<tiles.size(); i++){
+            boolean last = i + 1==tiles.size();
+            var point = TablePoints.ofHandBlock(d, i, last);
+            var block = BlockLabel.ofOpponentHand(d);
+            putBlock(block, point.x, point.y, 0);
+        }
+    }
+
     /**
      * 指定した位置に副露面子構成牌の牌ラベルを縦向きに描画します。
      * @param d 方向
@@ -71,7 +84,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param tile 牌
      */
     private void putMeldTile(Direction d, int offset, Tile tile){
-        var point = BlockPoints.ofMeldBlock(d, offset, false, false);
+        var point = TablePoints.ofMeldBlock(d, offset, false, false);
         var block = BlockLabel.ofFaceUp(d.reversed(), tile);
         putBlock(block, point.x, point.y, 0);
     }
@@ -82,7 +95,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param offset 副露位置(指定方向から見た画面右端からの位置)
      */
     private void putMeldTileFaceDown(Direction d, int offset){
-        var point = BlockPoints.ofMeldBlock(d, offset, false, false);
+        var point = TablePoints.ofMeldBlock(d, offset, false, false);
         var block = BlockLabel.ofFaceDown(d.reversed());
         putBlock(block, point.x, point.y, 0);
     }
@@ -94,7 +107,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param tile 牌
      */
     private void putMeldTileRotated(Direction d, int offset, Tile tile, UnaryOperator<Direction> rotate){
-        var point = BlockPoints.ofMeldBlock(d, offset, true, false);
+        var point = TablePoints.ofMeldBlock(d, offset, true, false);
         var block = BlockLabel.ofFaceUp(rotate.apply(d.reversed()), tile);
         putBlock(block, point.x, point.y, 0);
     }
@@ -107,7 +120,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param rotation 牌を倒す向き {@link Direction::turnLeft} または {@link Direction::turnRight}
      */
     private void putMeldTileAdded(Direction d, int offset, Tile tile, UnaryOperator<Direction> rotation){
-        var point = BlockPoints.ofMeldBlock(d, offset, true, true);
+        var point = TablePoints.ofMeldBlock(d, offset, true, true);
         var block = BlockLabel.ofFaceUp(rotation.apply(d.reversed()), tile);
         putBlock(block, point.x, point.y, 0);
     }
@@ -212,7 +225,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param floor 山牌の段目(0..1)
      */
     void putWallTile(Direction d, int column, int floor){
-        var point = BlockPoints.ofWallBlock(d, column, floor);
+        var point = TablePoints.ofWallBlock(d, column, floor);
         var block = areaInfo.get(d).wallBlockReferences[column][floor] = BlockLabel.ofFaceDown(d);
         putBlock(block, point.x, point.y, floor);
     }
@@ -225,7 +238,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param tile 牌
      */
     void putWallTileAsIndicator(Direction d, int column, int floor, Tile tile){
-        var point = BlockPoints.ofWallBlock(d, column, floor);
+        var point = TablePoints.ofWallBlock(d, column, floor);
         var block = areaInfo.get(d).wallBlockReferences[column][floor] = BlockLabel.ofFaceUp(d, tile);
         putBlock(block, point.x, point.y, floor);
     }
@@ -250,8 +263,8 @@ public class BlockImageTable extends JLayeredPane{
         var info = areaInfo.get(d);
         int riverIndex = info.nextRiverIndex;
         var point = info.readyRiverIndex==-1?
-                BlockPoints.ofRiverBlock(d, riverIndex):
-                BlockPoints.ofRiverBlock(d, riverIndex, info.nextRiverIndex);
+                TablePoints.ofRiverBlock(d, riverIndex):
+                TablePoints.ofRiverBlock(d, riverIndex, info.nextRiverIndex);
         var block = info.riverBlockReference[info.nextRiverIndex]
                 = BlockLabel.ofFaceUp(d.reversed(), tile);
         putBlock(block, point.x, point.y, 0);
@@ -282,4 +295,33 @@ public class BlockImageTable extends JLayeredPane{
         remove(info.riverBlockReference[lastRiverIndex]);
         info.riverBlockReference[lastRiverIndex] = null;
     }
+
+    void putReadyBar(Direction d){
+        var label = areaInfo.get(d).readyBarReference = TableLabels.ofReadyBar(d);
+        var point = TablePoints.ofReadyBar(d);
+        label.setLocationCentered(point.x, point.y);
+        add(label);
+    }
+
+    void putPlayerNameArea(Direction d, String name){
+        var label = TableLabels.ofPlayerName(d, name);
+        var point = TablePoints.ofPlayerName(d);
+        label.setLocationCentered(point.x, point.y);
+        add(label);
+    }
+
+    void putPlayerScoreArea(Direction d, int score){
+        var label = TableLabels.ofPlayerScore(d, score);
+        var point = TablePoints.ofPlayerScore(d);
+        label.setLocationCentered(point.x, point.y);
+        add(label);
+    }
+
+    void putPlayerWind(Direction d, Wind wind){
+        var label = TableLabels.ofPlayerWind(d, wind);
+        var point = TablePoints.ofPlayerWind(d);
+        label.setLocationCentered(point.x, point.y);
+        add(label);
+    }
+
 }

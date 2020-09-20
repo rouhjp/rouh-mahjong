@@ -19,12 +19,13 @@ public interface HandType{
      * @return true  役満の場合
      *         false 通常役の場合
      */
-    boolean isEpic();
+    boolean isLimit();
 
     /**
-     * 役の翻数, 役満であれば役満の倍数を返します。
+     * 役の翻数, 役満であれば13, ダブル役満の場合は26を返します。
      * @return 翻数 通常役の場合
-     *         役満の倍数 役満の場合
+     *         13 役満の場合
+     *         26 ダブル役満の場合
      */
-    int getTypePoint();
+    int getDoubles();
 }

@@ -16,7 +16,7 @@ public final class Dices{
      * サイコロの目としてランダムに1..6の整数を取得します。
      * @return サイコロの目(1..6)
      */
-    public static int rollDices(){
+    public static int rollDice(){
         return ThreadLocalRandom.current().nextInt(6) + 1;
     }
 }

@@ -53,6 +53,20 @@ public enum Side{
     }
 
     /**
+     * この相対位置が示す相手から見た自分の相対位置を返します。
+     * @return 反転した相対位置
+     */
+    public Side fromOpposite(){
+        switch(this){
+            case SELF: return SELF;
+            case RIGHT: return LEFT;
+            case ACROSS: return ACROSS;
+            case LEFT: return RIGHT;
+            default: throw new AssertionError();
+        }
+    }
+
+    /**
      * この相対位置以外の相対位置をリスト形式で返します。
      *
      * <p>例えば {@code SELF.others()} は, [RIGHT, ACROSS, LEFT]と等価です。
@@ -76,5 +90,20 @@ public enum Side{
         if(d1<=0 || d2<=0 || d1>6 || d2>6)
             throw new IllegalArgumentException("not dice value");
         return values()[(d1 + d2 - 1)%4];
+    }
+
+    /**
+     * 2つのサイコロが示す相対位置を返します。
+     * @param diceSum 2つのサイコロの目の合計値(2..12)
+     * @throws IllegalArgumentException 与えられたサイコロの目の合計が2~12の範囲外の場合
+     * @return RIGHT  サイコロの目の合計が 2, 6, 10 のとき
+     *         ACROSS サイコロの眼の合計が 3, 7, 11 のとき
+     *         LEFT   サイコロの眼の合計が 4, 8, 12 のとき
+     *         SELF   サイコロの眼の合計が 5, 9 のとき
+     */
+    public static Side of(int diceSum){
+        if(diceSum<2 || diceSum>12)
+            throw new IllegalArgumentException("not dice value");
+        return values()[(diceSum - 1)%4];
     }
 }

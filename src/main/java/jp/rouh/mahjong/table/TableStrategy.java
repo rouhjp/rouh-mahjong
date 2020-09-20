@@ -1,8 +1,14 @@
 package jp.rouh.mahjong.table;
 
-import java.util.List;
+import jp.rouh.mahjong.table.action.CallAction;
+import jp.rouh.mahjong.table.action.CallPhaseContext;
+import jp.rouh.mahjong.table.action.TurnAction;
+import jp.rouh.mahjong.table.action.TurnPhaseContext;
+
 
 public interface TableStrategy extends TableObserver{
 
-    TurnAction moveTurnPhase(List<TurnAction> choices);
+    TurnAction askTurnAction(TurnPhaseContext context);
+
+    CallAction askCallAction(CallPhaseContext context);
 }
