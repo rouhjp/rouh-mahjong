@@ -1,5 +1,6 @@
 package jp.rouh.mahjong.app;
 
+import jp.rouh.mahjong.table.Declaration;
 import jp.rouh.mahjong.table.Player;
 import jp.rouh.mahjong.table.TableStrategy;
 import jp.rouh.mahjong.table.action.CallAction;
@@ -15,6 +16,38 @@ import java.util.List;
 public class Bot extends Player{
     public Bot(String name){
         super(name, new TableStrategy(){
+            @Override
+            public void handRevealed(Side side, List<Tile> handTiles){
+
+            }
+            @Override
+            public void handRevealed(Side side, List<Tile> handTiles, Tile drawnTile){
+
+            }
+            @Override
+            public void riverTileTaken(Side side){
+
+            }
+            @Override
+            public void tiltMeldAdded(Side side, Side tilt, List<Tile> tiles){
+
+            }
+            @Override
+            public void selfQuadAdded(Side side, List<Tile> tiles){
+
+            }
+            @Override
+            public void meldTileAdded(Side side, int index, Tile added){
+
+            }
+            @Override
+            public void readyBoneAdded(Side side){
+
+            }
+            @Override
+            public void declared(Side side, Declaration declaration){
+
+            }
             @Override
             public TurnAction askTurnAction(TurnPhaseContext context){
                 return TurnAction.ofDiscard(context.getTiles().get(context.getTiles().size() - 1));
@@ -68,31 +101,11 @@ public class Bot extends Player{
 
             }
             @Override
-            public void tiltTileDiscarded(Side side, Tile tile){
+            public void tileDiscardedAsReady(Side side, Tile tile){
 
             }
             @Override
-            public void selfQuadAdded(Side side, List<Tile> tiles){
-
-            }
-            @Override
-            public void leftTiltMeldAdded(Side side, List<Tile> tiles){
-
-            }
-            @Override
-            public void middleTiltMeldAdded(Side side, List<Tile> tiles){
-
-            }
-            @Override
-            public void rightTiltMeldAdded(Side side, List<Tile> tiles){
-
-            }
-            @Override
-            public void meldTileAdded(Side side, int index, Tile tile){
-
-            }
-            @Override
-            public void handUpdated(Side side, List<Tile> handTiles){
+            public void roundSettled(String expression){
 
             }
         });

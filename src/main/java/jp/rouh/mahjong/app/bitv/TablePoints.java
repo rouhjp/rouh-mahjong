@@ -13,12 +13,13 @@ final class TablePoints{
         throw new AssertionError("no instance for you!");
     }
 
+
     static Point ofHandBlock(Direction dir, int index, boolean isolated){
         return PointWalker.from(CENTER, dir)
                 .goStraight(260)
-                .goLeft(220)
-                .goRight(index*20)
-                .goRight(isolated? 10:0)
+                .goRight(220)
+                .goLeft(index*20)
+                .goLeft(isolated? 10:0)
                 .get();
     }
 
@@ -37,16 +38,16 @@ final class TablePoints{
                 .get();
     }
 
-    static Point ofRiverBlock(Direction dir, int index, int reachIndex){
+    static Point ofRiverBlock(Direction dir, int index, int readyIndex){
         int row = index/6;
         int col = index%6;
-        if(reachIndex==-1){
+        if(readyIndex==-1){
             return ofRiverBlock(dir, row, col, false, false);
         }
-        int reachRow = reachIndex/6;
-        boolean reachRotation = index==reachIndex;
-        boolean reachTranslation = row==reachRow && reachIndex<index;
-        return ofRiverBlock(dir, row, col, reachRotation, reachTranslation);
+        int readyRow = readyIndex/6;
+        boolean readyRotation = index==readyIndex;
+        boolean readyTranslation = row==readyRow && readyIndex<index;
+        return ofRiverBlock(dir, row, col, readyRotation, readyTranslation);
     }
 
     private static Point ofRiverBlock(Direction dir, int row, int col, boolean rr, boolean rt){
@@ -91,6 +92,12 @@ final class TablePoints{
         return PointWalker.from(CENTER, dir)
                 .goStraight(45)
                 .goRight(40)
+                .get();
+    }
+
+    static Point ofPlayerMessage(Direction dir){
+        return PointWalker.from(CENTER, dir)
+                .goStraight(210)
                 .get();
     }
 

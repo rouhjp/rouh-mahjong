@@ -11,6 +11,7 @@ package jp.rouh.mahjong.score;
  * @author Rouh
  * @version 1.0
  */
+@FunctionalInterface
 public interface HandScoreCalculator{
     /**
      * 手牌と勝利コンテキストを元に手牌の得点を算出します。
@@ -22,10 +23,10 @@ public interface HandScoreCalculator{
      * @see WinningContext
      * @param hand 和了手牌
      * @param context 勝利コンテキスト
-     * @throws IllegalArgumentException 手牌が完成形でない場合
+     * @throws HandFormatException 手牌が完成形でない場合
      * @return 手牌の得点
      */
-    HandScore calculate(WinningHand hand, WinningContext context);
+    HandScore calculate(WinningHand hand, WinningContext context) throws HandFormatException;
 
     /**
      * 与えられた手牌と勝利コンテキストで点数が発生するかどうか検査します。
@@ -33,6 +34,11 @@ public interface HandScoreCalculator{
      *         false 点数が発生しない場合(0翻)
      *               手牌が未完成の場合
      */
-    boolean checkIfScorePresent(WinningHand hand, WinningContext context);
-
+    default boolean checkIfScorePresent(WinningHand hand, WinningContext context){
+        try{
+            return calculate(hand, context).getBaseScore()!=0;
+        }catch(HandFormatException e){
+            return false;
+        }
+    }
 }

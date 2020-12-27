@@ -1,7 +1,5 @@
 package jp.rouh.mahjong.table;
 
-import jp.rouh.mahjong.table.round.FieldRound;
-import jp.rouh.mahjong.table.round.Round;
 import jp.rouh.mahjong.tile.Side;
 import jp.rouh.mahjong.tile.Wind;
 

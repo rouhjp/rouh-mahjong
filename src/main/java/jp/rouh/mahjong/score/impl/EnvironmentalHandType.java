@@ -85,6 +85,8 @@ public enum EnvironmentalHandType implements HandType{
      *         false 役が成立しない場合
      */
     abstract boolean define(WinningContext context);
+
+
     @Override
     public String getName(){
         return name;

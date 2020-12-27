@@ -41,5 +41,4 @@ public final class TableLabels{
     public static TableLabel ofPlayerWind(Direction d, Wind wind){
         return ofText(d, wind.toString(), 20, 20, 0);
     }
-
 }

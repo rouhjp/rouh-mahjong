@@ -48,10 +48,10 @@ public class WinningHand{
      * 手牌を整形して整形済み手牌{@link FormattedHand}のセットを取得します。
      * <p>手牌は複数の並べ替えパターン
      *
-     * @throws NoSuchElementException フォーマット不可能な場合
+     * @throws IllegalStateException フォーマット不可能な場合
      * @return 整形済み手牌のセット
      */
-    public Set<FormattedHand> format(){
+    public Set<FormattedHand> format() throws HandFormatException{
         var hands = new HashSet<FormattedHand>();
         if(HandTiles.isSevenPairs(handTiles, winningTile)){
             hands.add(new SevenPairsHand(handTiles, winningTile));
@@ -73,7 +73,7 @@ public class WinningHand{
             }
         }
         if(hands.isEmpty()){
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
         }
         return hands;
     }

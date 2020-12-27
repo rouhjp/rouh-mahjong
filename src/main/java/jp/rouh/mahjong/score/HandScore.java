@@ -22,11 +22,20 @@ import java.util.List;
  * @author Rouh
  * @version 1.0
  */
-public class HandScore{
+public class HandScore implements Comparable<HandScore>{
+
+    /** 符数 */
     private final int point;
+
+    /** 翻数 */
     private final int doubles;
+
+    /** 基本点 */
     private final int baseScore;
+
+    /** 役 */
     private final List<HandType> handTypes;
+
     private final String limitExpression;
     private final boolean dealer;
     private final boolean handLimit;
@@ -77,6 +86,14 @@ public class HandScore{
         return handTypes;
     }
 
+//    /**
+//     * 手牌の符算出項目をリスト形式で取得します。
+//     * @return 符算出項目のリスト
+//     */
+//    public List<HandPoint> getHandPoints(){
+//        return handPoints;
+//    }
+
     /**
      * 手牌の点数区分を取得します。
      *
@@ -86,6 +103,26 @@ public class HandScore{
      */
     public String getLimitExpression(){
         return limitExpression;
+    }
+
+    /**
+     * 翻数を返します。
+     *
+     * <p>役満の場合は役満の倍数に13を掛けた値が翻数として返されます。
+     * @return 翻数
+     */
+    public int getDoubles(){
+        return doubles;
+    }
+
+    /**
+     * 符を返します。
+     *
+     * <p>符は10の位で切り上げられた値です。
+     * @return 符
+     */
+    public int getPoint(){
+        return point;
     }
 
     /**
@@ -128,14 +165,9 @@ public class HandScore{
         return (int)Math.ceil(((dealer?6:4)*baseScore)/100d)*100;
     }
 
-    /**
-     * 翻数の合計値を返します。
-     *
-     * <p>役満の場合は役満の倍数に13を掛けた値が翻数として返されます。
-     * @return 翻数の合計
-     */
-    public int getDoubles(){
-        return doubles;
+    @Override
+    public int compareTo(HandScore o){
+        return this.getBaseScore() - o.getBaseScore();
     }
 
     /**

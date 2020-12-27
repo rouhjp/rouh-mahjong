@@ -1,5 +1,7 @@
 package jp.rouh.mahjong.table;
 
+import jp.rouh.mahjong.score.HandType;
+import jp.rouh.mahjong.score.Meld;
 import jp.rouh.mahjong.table.action.CallAction;
 import jp.rouh.mahjong.table.action.CallPhaseContext;
 import jp.rouh.mahjong.table.action.TurnAction;
@@ -73,31 +75,43 @@ public abstract class TableStrategyAdaptor implements TableStrategy{
         strategy.tileDiscarded(side, tile);
     }
     @Override
-    public void tiltTileDiscarded(Side side, Tile tile){
-        strategy.tiltTileDiscarded(side, tile);
+    public void tileDiscardedAsReady(Side side, Tile tile){
+        strategy.tileDiscardedAsReady(side, tile);
+    }
+    @Override
+    public void roundSettled(String expression){
+
+    }
+    @Override
+    public void handRevealed(Side side, List<Tile> handTiles){
+
+    }
+    @Override
+    public void handRevealed(Side side, List<Tile> handTiles, Tile drawnTile){
+
+    }
+    @Override
+    public void riverTileTaken(Side side){
+
+    }
+    @Override
+    public void tiltMeldAdded(Side side, Side tilt, List<Tile> tiles){
+
     }
     @Override
     public void selfQuadAdded(Side side, List<Tile> tiles){
-        strategy.selfQuadAdded(side, tiles);
+
     }
     @Override
-    public void leftTiltMeldAdded(Side side, List<Tile> tiles){
-        strategy.leftTiltMeldAdded(side, tiles);
+    public void meldTileAdded(Side side, int index, Tile added){
+
     }
     @Override
-    public void middleTiltMeldAdded(Side side, List<Tile> tiles){
-        strategy.middleTiltMeldAdded(side, tiles);
+    public void readyBoneAdded(Side side){
+
     }
     @Override
-    public void rightTiltMeldAdded(Side side, List<Tile> tiles){
-        strategy.rightTiltMeldAdded(side, tiles);
-    }
-    @Override
-    public void meldTileAdded(Side side, int index, Tile tile){
-        strategy.meldTileAdded(side, index, tile);
-    }
-    @Override
-    public void handUpdated(Side side, List<Tile> handTiles){
-        strategy.handUpdated(side, handTiles);
+    public void declared(Side side, Declaration declaration){
+
     }
 }

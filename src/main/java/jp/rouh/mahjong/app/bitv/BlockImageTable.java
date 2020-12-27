@@ -6,153 +6,92 @@ import jp.rouh.mahjong.tile.Wind;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
 
-/**
- * 麻雀卓を描画するパネルクラス。
- * @author Rouh
- * @version 1.0
- */
-public class BlockImageTable extends JLayeredPane{
-    static final int BLOCK_WIDTH = 20;
-    static final int BLOCK_HEIGHT = 30;
-    static final int TABLE_WIDTH = 580;
-    static final int TABLE_HEIGHT = 580;
+public class BlockImageTable extends RegisteredPane{
+    private static final int BLOCK_WIDTH = 20;
+    private static final int BLOCK_HEIGHT = 30;
+    private static final int TABLE_WIDTH = 580;
+    private static final int TABLE_HEIGHT = 580;
     private static final int MELD_MARGIN = BLOCK_WIDTH/2;
-    private final Map<Direction, AreaInfo> areaInfo = new HashMap<>();
-
-    /**
-     * 画面方向ごとの各種内部情報を保持するクラス。
-     */
-    private static class AreaInfo{
-        /** リーチ棒ラベルの参照 */
-        private TableLabel readyBarReference;
-        /** 捨て牌の牌ラベルの参照 */
-        private final BlockLabel[] riverBlockReference = new BlockLabel[24];
-        /** 山牌の牌ラベルの参照 */
-        private final BlockLabel[][] wallBlockReferences = new BlockLabel[17][2];
-        /** 加槓時の描画処理の登録先 */
-        private final Map<Integer, Consumer<Tile>> addingActions = new HashMap<>();
-        /** 副露置き場の右端からの累積距離 */
-        private int totalMeldOffset = 0;
-        /** 副露の数 */
-        private int nextMeldIndex = 0;
-        /** 捨て牌の数 */
-        private int nextRiverIndex = 0;
-        /** リーチ宣言牌の位置 */
-        private int readyRiverIndex = -1;
-    }
-
+    private int readyRiverIndexes[] = {-1, -1, -1, -1};
+    private int nextRiverIndexes[] = new int[4];
+    private int nextMeldIndexes[] = new int[4];
+    private int totalMeldOffsets[] = new int[4];
+    private int addMeldOffsets[][] = new int[4][4];
+    private Direction addMeldTilts[][] = new Direction[4][4];
     BlockImageTable(){
         setSize(TABLE_WIDTH, TABLE_HEIGHT);
         setBorder(new LineBorder(Color.BLACK));
-        for (var dir:Direction.values()){
-            areaInfo.put(dir, new AreaInfo());
-        }
     }
 
-    /**
-     * 牌ラベルを指定した位置に追加する。
-     * @param label ラベル
-     * @param x ラベルの座標(x) 0..width
-     * @param y ラベルの座標(y) 0..height
-     * @param z ラベルの高さ(z) 0..1
-     */
-    private void putBlock(BlockLabel label, int x, int y, int z){
+    private void putBlock(BlockLabel label, int x, int y, int z, String name){
         label.setLocationCentered(x, y);
-        add(label);
+        addNamed(label, name);
         setLayer(label, z*TABLE_HEIGHT + y);
     }
 
-    void putHandTiles(Direction d, List<Tile> tiles){
-        for(int i = 0; i<tiles.size(); i++){
-            boolean last = i + 1==tiles.size();
-            var point = TablePoints.ofHandBlock(d, i, last);
-            var block = BlockLabel.ofOpponentHand(d);
-            putBlock(block, point.x, point.y, 0);
+    private String getMeldTileId(Direction d, int meldIndex, int tileIndex){
+        return "meld("+d+"-"+meldIndex+")-"+tileIndex;
+    }
+
+    private void clear(){
+        nextMeldIndexes = new int[4];
+        totalMeldOffsets = new int[4];
+        addMeldOffsets = new int[4][4];
+        addMeldTilts = new Direction[4][4];
+        for(var d:Direction.values()){
+            for(int i = 0;i<4;i++){
+                for(int j = 0; j<4; j++){
+                    removeByName(getMeldTileId(d, i, j));
+                }
+            }
+            removeByName(getReadyBoneId(d));
         }
     }
 
-    /**
-     * 指定した位置に副露面子構成牌の牌ラベルを縦向きに描画します。
-     * @param d 方向
-     * @param offset 副露位置(指定方向から見た画面右端からの位置)
-     * @param tile 牌
-     */
-    private void putMeldTile(Direction d, int offset, Tile tile){
+    private void putMeldTile(Direction d, Tile tile, int offset, String name){
         var point = TablePoints.ofMeldBlock(d, offset, false, false);
         var block = BlockLabel.ofFaceUp(d.reversed(), tile);
-        putBlock(block, point.x, point.y, 0);
+        putBlock(block, point.x, point.y, 0, name);
     }
 
-    /**
-     * 指定した位置に伏せた牌ラベルを描画します。
-     * @param d 方向
-     * @param offset 副露位置(指定方向から見た画面右端からの位置)
-     */
-    private void putMeldTileFaceDown(Direction d, int offset){
+    private void putMeldTileFaceDown(Direction d, int offset, String name){
         var point = TablePoints.ofMeldBlock(d, offset, false, false);
         var block = BlockLabel.ofFaceDown(d.reversed());
-        putBlock(block, point.x, point.y, 0);
+        putBlock(block, point.x, point.y, 0, name);
     }
 
-    /**
-     * 指定した位置に副露面子構成牌の牌ラベルを横向き・下揃えに描画します。
-     * @param d 方向
-     * @param offset 副露位置(指定方向から見た画面右端からの位置)
-     * @param tile 牌
-     */
-    private void putMeldTileRotated(Direction d, int offset, Tile tile, UnaryOperator<Direction> rotate){
+    private void putMeldTileRotated(Direction d, Tile tile, Direction rotated, int offset, String name){
         var point = TablePoints.ofMeldBlock(d, offset, true, false);
-        var block = BlockLabel.ofFaceUp(rotate.apply(d.reversed()), tile);
-        putBlock(block, point.x, point.y, 0);
+        var block = BlockLabel.ofFaceUp(rotated.reversed(), tile);
+        putBlock(block, point.x, point.y, 0, name);
     }
 
-    /**
-     * 指定した位置に副露面子構成牌の牌ラベルを横向き・上揃えに描画します。
-     * @param d 方向
-     * @param offset 副露位置(指定方向から見た画面右端からの位置)
-     * @param tile 牌
-     * @param rotation 牌を倒す向き {@link Direction::turnLeft} または {@link Direction::turnRight}
-     */
-    private void putMeldTileAdded(Direction d, int offset, Tile tile, UnaryOperator<Direction> rotation){
+    private void putMeldTileAdded(Direction d, Tile tile, Direction rotated, int offset, String name){
         var point = TablePoints.ofMeldBlock(d, offset, true, true);
-        var block = BlockLabel.ofFaceUp(rotation.apply(d.reversed()), tile);
-        putBlock(block, point.x, point.y, 0);
+        var block = BlockLabel.ofFaceUp(rotated.reversed(), tile);
+        putBlock(block, point.x, point.y, 0, name);
     }
 
-    /**
-     * 指定された方向の副露置き場に, 面子(明順子/明刻子/大明槓)を描画します。<br>
-     * 面子が槓子でない場合, 予め加槓時の描画処理を内部に登録します。
-     * @param d 方向
-     * @param rotation 牌を倒す向き {@link Direction::turnLeft} または {@link Direction::turnRight}
-     * @param tiltIndex 倒す牌の左からの位置(0..3)
-     * @param tiles 牌(3..4)
-     */
-    private void putTiltMeld(Direction d, UnaryOperator<Direction> rotation, int tiltIndex, Tile...tiles){
-        if (tiles.length!=3 && tiles.length!=4){
-            throw new IllegalArgumentException("illegal length of meld tile");
-        }
-        for (int i = tiles.length - 1; i>=0; i--){
-            if (i==tiltIndex){
-                putMeldTileRotated(d, areaInfo.get(d).totalMeldOffset, tiles[i], rotation);
-                if (tiles.length==3) {
-                    var offset = areaInfo.get(d).totalMeldOffset; //deep copy
-                    areaInfo.get(d).addingActions.put(areaInfo.get(d).nextMeldIndex,
-                            tile -> putMeldTileAdded(d, offset, tile, rotation));
-                }
-                areaInfo.get(d).totalMeldOffset += BLOCK_HEIGHT;
+    private void putTiltMeld(Direction d, Direction tilt, Tile...tiles){
+        assert tiles.length==3 || tiles.length==4;
+        assert tilt==Direction.LEFT || tilt==Direction.RIGHT;
+        int tiltIndex = tilt==Direction.LEFT? 0:tiles.length - 1;
+        var rotated = tilt==Direction.LEFT? d.turnLeft():d.turnRight();
+        for(int i = tiles.length - 1; i>=0; i--){
+            String name = getMeldTileId(d, nextMeldIndexes[d.ordinal()], i);
+            if(i==tiltIndex){
+                putMeldTileRotated(d, tiles[i], rotated, totalMeldOffsets[d.ordinal()], name);
+                addMeldOffsets[d.ordinal()][nextMeldIndexes[d.ordinal()]] = totalMeldOffsets[d.ordinal()];
+                addMeldTilts[d.ordinal()][nextMeldIndexes[d.ordinal()]] = tilt;
+                totalMeldOffsets[d.ordinal()] += BLOCK_HEIGHT;
             }else{
-                putMeldTile(d, areaInfo.get(d).totalMeldOffset, tiles[i]);
-                areaInfo.get(d).totalMeldOffset += BLOCK_WIDTH;
+                putMeldTile(d, tiles[i], totalMeldOffsets[d.ordinal()], name);
+                totalMeldOffsets[d.ordinal()] += BLOCK_WIDTH;
             }
         }
-        areaInfo.get(d).nextMeldIndex++;
-        areaInfo.get(d).totalMeldOffset += MELD_MARGIN;
+        nextMeldIndexes[d.ordinal()]++;
+        totalMeldOffsets[d.ordinal()] += MELD_MARGIN;
     }
 
     /**
@@ -161,7 +100,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param tiles 牌(3..4)
      */
     void putLeftTiltMeld(Direction d, Tile...tiles){
-        putTiltMeld(d, Direction::turnLeft, 0, tiles);
+        putTiltMeld(d, Direction.LEFT, tiles);
     }
 
     /**
@@ -170,7 +109,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param tiles 牌(3..4)
      */
     void putMiddleTiltMeld(Direction d, Tile...tiles){
-        putTiltMeld(d, Direction::turnRight, 1, tiles);
+        putTiltMeld(d, Direction.RIGHT, tiles);
     }
 
     /**
@@ -179,22 +118,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param tiles 牌(3..4)
      */
     void putRightTiltMeld(Direction d, Tile...tiles){
-        putTiltMeld(d, Direction::turnRight, tiles.length - 1, tiles);
-    }
-
-    /**
-     * 指定した方向のn番目副露に加槓として牌を追加で描画します。
-     * @param d 副露の方向
-     * @param meldIndex n(0..3)
-     * @param tile 追加する牌
-     */
-    void putAdditionalMeldTile(Direction d, int meldIndex, Tile tile){
-        var actions = areaInfo.get(d).addingActions;
-        if (!actions.containsKey(meldIndex)){
-            throw new IllegalStateException("can't add tile to meld at "+meldIndex+", "+d);
-        }
-        actions.get(meldIndex).accept(tile);
-        actions.remove(meldIndex);
+        putTiltMeld(d, Direction.RIGHT, tiles);
     }
 
     /**
@@ -203,19 +127,36 @@ public class BlockImageTable extends JLayeredPane{
      * @param tiles 牌(4)
      */
     void putSelfQuadMeld(Direction d, Tile...tiles){
-        if (tiles.length!=4){
-            throw new IllegalArgumentException("illegal length of self meld tiles");
-        }
-        for (int i = 3; i>=0; i--) {
-            if (i == 0 || i == 3) {
-                putMeldTileFaceDown(d, areaInfo.get(d).totalMeldOffset);
-            } else {
-                putMeldTile(d, areaInfo.get(d).totalMeldOffset, tiles[i]);
+        assert tiles.length==4;
+        for(int i = 3; i>=0; i--){
+            String name = getMeldTileId(d, nextMeldIndexes[d.ordinal()], i);
+            if(i==0 || i==3){
+                putMeldTileFaceDown(d, totalMeldOffsets[d.ordinal()], name);
+            }else{
+                putMeldTile(d, tiles[i], totalMeldOffsets[d.ordinal()], name);
             }
-            areaInfo.get(d).totalMeldOffset += BLOCK_WIDTH;
+            totalMeldOffsets[d.ordinal()] += MELD_MARGIN;
         }
-        areaInfo.get(d).nextMeldIndex++;
-        areaInfo.get(d).totalMeldOffset += MELD_MARGIN;
+        nextMeldIndexes[d.ordinal()]++;
+        totalMeldOffsets[d.ordinal()] += MELD_MARGIN;
+    }
+
+    /**
+     * 指定した方向のn番目副露に加槓として牌を追加で描画します。
+     * @param d 副露の方向
+     * @param meldIndex n(0..3)
+     * @param tile 追加する牌
+     */
+    void putAddMeldTile(Direction d, int meldIndex, Tile tile){
+        int offset = addMeldOffsets[d.ordinal()][meldIndex];
+        var tilt = addMeldTilts[d.ordinal()][meldIndex];
+        var rotated = tilt==Direction.LEFT? d.turnLeft():d.turnRight();
+        var name = getMeldTileId(d, meldIndex, 3);
+        putMeldTileAdded(d, tile, rotated, offset, name);
+    }
+
+    private String getWallTileId(Direction d, int column, int floor){
+        return "wall-"+d.ordinal()*34+column*2+floor;
     }
 
     /**
@@ -226,8 +167,9 @@ public class BlockImageTable extends JLayeredPane{
      */
     void putWallTile(Direction d, int column, int floor){
         var point = TablePoints.ofWallBlock(d, column, floor);
-        var block = areaInfo.get(d).wallBlockReferences[column][floor] = BlockLabel.ofFaceDown(d);
-        putBlock(block, point.x, point.y, floor);
+        var block  = BlockLabel.ofFaceDown(d);
+        var name = getWallTileId(d, column, floor);
+        putBlock(block, point.x, point.y, floor, name);
     }
 
     /**
@@ -239,8 +181,9 @@ public class BlockImageTable extends JLayeredPane{
      */
     void putWallTileAsIndicator(Direction d, int column, int floor, Tile tile){
         var point = TablePoints.ofWallBlock(d, column, floor);
-        var block = areaInfo.get(d).wallBlockReferences[column][floor] = BlockLabel.ofFaceUp(d, tile);
-        putBlock(block, point.x, point.y, floor);
+        var block = BlockLabel.ofFaceUp(d, tile);
+        var name = getWallTileId(d, column, floor);
+        putBlock(block, point.x, point.y, floor, name);
     }
 
     /**
@@ -250,8 +193,11 @@ public class BlockImageTable extends JLayeredPane{
      * @param floor 山牌の段目(0..1)
      */
     void removeWallTile(Direction d, int column, int floor){
-        remove(areaInfo.get(d).wallBlockReferences[column][floor]);
-        areaInfo.get(d).wallBlockReferences[column][floor] = null;
+        removeByName(getWallTileId(d, column, floor));
+    }
+
+    private String getRiverTileId(Direction d, int index){
+        return "river("+d+")-"+index;
     }
 
     /**
@@ -260,15 +206,15 @@ public class BlockImageTable extends JLayeredPane{
      * @param tile 牌
      */
     void putRiverTile(Direction d, Tile tile){
-        var info = areaInfo.get(d);
-        int riverIndex = info.nextRiverIndex;
-        var point = info.readyRiverIndex==-1?
+        int riverIndex = nextRiverIndexes[d.ordinal()];
+        int readyIndex = readyRiverIndexes[d.ordinal()];
+        var point = readyIndex==-1?
                 TablePoints.ofRiverBlock(d, riverIndex):
-                TablePoints.ofRiverBlock(d, riverIndex, info.nextRiverIndex);
-        var block = info.riverBlockReference[info.nextRiverIndex]
-                = BlockLabel.ofFaceUp(d.reversed(), tile);
-        putBlock(block, point.x, point.y, 0);
-        info.nextRiverIndex++;
+                TablePoints.ofRiverBlock(d, riverIndex, readyIndex);
+        var block = BlockLabel.ofFaceUp(d.reversed(), tile);
+        var name = getRiverTileId(d, riverIndex);
+        putBlock(block, point.x, point.y, 0, name);
+        nextRiverIndexes[d.ordinal()]++;
     }
 
     /**
@@ -277,8 +223,7 @@ public class BlockImageTable extends JLayeredPane{
      * @param tile 牌
      */
     void putRiverTileAsReady(Direction d, Tile tile){
-        var info = areaInfo.get(d);
-        info.readyRiverIndex = info.nextRiverIndex;
+        readyRiverIndexes[d.ordinal()] = nextRiverIndexes[d.ordinal()];
         putRiverTile(d, tile);
     }
 
@@ -287,20 +232,19 @@ public class BlockImageTable extends JLayeredPane{
      * @param d 捨て牌の方向
      */
     void removeRiverTile(Direction d){
-        var info = areaInfo.get(d);
-        if (info.nextRiverIndex==0){
-            throw new IllegalStateException("no river tile set yet");
-        }
-        int lastRiverIndex = info.nextRiverIndex - 1;
-        remove(info.riverBlockReference[lastRiverIndex]);
-        info.riverBlockReference[lastRiverIndex] = null;
+        assert nextRiverIndexes[d.ordinal()]>0;
+        removeByName(getRiverTileId(d, nextRiverIndexes[d.ordinal()] - 1));
     }
 
-    void putReadyBar(Direction d){
-        var label = areaInfo.get(d).readyBarReference = TableLabels.ofReadyBar(d);
+    private String getReadyBoneId(Direction d){
+        return "ready-"+d;
+    }
+
+    void putReadyBone(Direction d){
+        var label = TableLabels.ofReadyBar(d);
         var point = TablePoints.ofReadyBar(d);
         label.setLocationCentered(point.x, point.y);
-        add(label);
+        addNamed(label, getReadyBoneId(d));
     }
 
     void putPlayerNameArea(Direction d, String name){
@@ -324,4 +268,19 @@ public class BlockImageTable extends JLayeredPane{
         add(label);
     }
 
+    void putPlayerMessage(Direction d, String msg){
+        var label = new TableLabel();
+        label.setText(msg);
+        label.setFont(new Font("Serif", Font.BOLD, 16));
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setVerticalAlignment(SwingConstants.CENTER);
+        label.setBackground(new Color(240, 230, 140));
+        label.setOpaque(true);
+        label.setBorder(new LineBorder(Color.BLACK, 2));
+        label.setSize(new Dimension(80, 40));
+        var point = TablePoints.ofPlayerMessage(d);
+        label.setLocationCentered(point.x, point.y);
+        addNamed(label, "message-"+d);
+        setLayer(label, 2000);
+    }
 }
