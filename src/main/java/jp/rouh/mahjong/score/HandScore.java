@@ -36,7 +36,10 @@ public class HandScore implements Comparable<HandScore>{
     /** 役 */
     private final List<HandType> handTypes;
 
+    /** 点数区分 */
     private final String limitExpression;
+    //private final Limit limit;
+
     private final boolean dealer;
     private final boolean handLimit;
 
@@ -86,24 +89,19 @@ public class HandScore implements Comparable<HandScore>{
         return handTypes;
     }
 
-//    /**
-//     * 手牌の符算出項目をリスト形式で取得します。
-//     * @return 符算出項目のリスト
-//     */
-//    public List<HandPoint> getHandPoints(){
-//        return handPoints;
-//    }
-
     /**
      * 手牌の点数区分を取得します。
      *
      * <p>点数区分として, 満貫, 跳満, 倍満, 三倍満, 役満, n倍役満が定義されています。
-     * <p>得点が満貫に満たない場合は空の文字列が返されます。
+     * <p>得点が満貫に満たない場合は{@code Limit.EMPTY}が返却されます。
      * @return 点数区分
      */
     public String getLimitExpression(){
         return limitExpression;
     }
+//    public Limit getLimit(){
+//        return limit;
+//    }
 
     /**
      * 翻数を返します。

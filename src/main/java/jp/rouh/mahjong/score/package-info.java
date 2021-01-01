@@ -64,7 +64,7 @@
  * また, 立直や一発, 海底摸月など勝利時の状況に依存する役の判定のため,
  * 勝利コンテキスト{@link jp.rouh.mahjong.score.WinningContext}インターフェースが用意されています。
  * <p>点数計算には点数計算機能{@link jp.rouh.mahjong.score.HandScoreCalculator}インターフェースと
- * その実装である{@link jp.rouh.mahjong.score.impl.TieredHandScoreCalculator}クラスを利用します。
+ * その実装である{@link jp.rouh.mahjong.score.type.TieredHandScoreCalculator}クラスを利用します。
  * <pre>{@code
  *     HandScore handScore = new TieredHandScoreCalculator().calculate(winningHand, winningContext);
  *     List<HandType> handTypes = handScore.getHandTypes();
@@ -84,7 +84,7 @@
  * @see jp.rouh.mahjong.score.WinningHand
  * @see jp.rouh.mahjong.score.WinningContext
  * @see jp.rouh.mahjong.score.HandScoreCalculator
- * @see jp.rouh.mahjong.score.impl.TieredHandScoreCalculator
+ * @see jp.rouh.mahjong.score.type.TieredHandScoreCalculator
  * @see jp.rouh.mahjong.score.HandScore
  * @see jp.rouh.mahjong.score.HandType
  * @author Rouh

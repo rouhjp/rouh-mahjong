@@ -1,4 +1,4 @@
-package jp.rouh.mahjong.app.bitv;
+package jp.rouh.mahjong.app.bitv.table;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +37,27 @@ public class RegisteredPane extends JLayeredPane{
         }
         remove(components.get(name));
         components.remove(name);
+    }
+
+//    /**
+//     * 指定した名前でコンポーネントが登録されているか検査します。
+//     * @param name 名前
+//     * @return true  登録されている場合
+//     *         false 登録されていない場合
+//     */
+//    public boolean contains(String name){
+//        return components.containsKey(name);
+//    }
+
+    /**
+     * 指定した名前でコンポーネントが登録されている場合, そのコンポーネントを削除します。
+     * @param name 名前
+     */
+    public void removeByNameIfPresent(String name){
+        if(components.containsKey(name)){
+            remove(components.get(name));
+            components.remove(name);
+        }
     }
 
     /**

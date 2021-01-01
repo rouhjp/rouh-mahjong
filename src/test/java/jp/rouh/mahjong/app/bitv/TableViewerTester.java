@@ -1,11 +1,13 @@
 package jp.rouh.mahjong.app.bitv;
 
+import jp.rouh.mahjong.app.bitv.table.BlockImageTableViewer;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
 
 public class TableViewerTester extends JFrame{
-    private BlockImageTable table = new BlockImageTable();
+    private BlockImageTableViewer table = new BlockImageTableViewer();
     private JTextArea commandListArea = new JTextArea();
     private JTextField commandField = new JTextField();
     private TableViewerTester(){

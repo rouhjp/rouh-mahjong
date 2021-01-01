@@ -1,4 +1,4 @@
-package jp.rouh.mahjong.app.bitv;
+package jp.rouh.mahjong.app.bitv.table;
 
 import jp.rouh.mahjong.tile.Side;
 

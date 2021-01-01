@@ -1,13 +1,15 @@
 package jp.rouh.mahjong.app.bitv;
 
+import jp.rouh.mahjong.app.bitv.table.BlockImageTableViewer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class BlockImageTableViewer extends JFrame /* implements TableStrategy */{
-    private final BlockImageTable table = new BlockImageTable();
+public class BlockImageFrame extends JFrame /* implements TableStrategy */{
+    private final BlockImageTableViewer table = new BlockImageTableViewer();
     private final ControlPanel controlPanel = new ControlPanel();
-    public BlockImageTableViewer(){
+    public BlockImageFrame(){
         setTitle("麻雀");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         getContentPane().setPreferredSize(new Dimension(600, 730));

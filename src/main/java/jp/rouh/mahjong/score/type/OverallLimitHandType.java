@@ -1,4 +1,4 @@
-package jp.rouh.mahjong.score.impl;
+package jp.rouh.mahjong.score.type;
 
 import jp.rouh.mahjong.score.HandType;
 import jp.rouh.mahjong.score.WinningContext;

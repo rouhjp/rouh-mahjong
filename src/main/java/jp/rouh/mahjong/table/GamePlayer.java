@@ -1,7 +1,7 @@
 package jp.rouh.mahjong.table;
 
 import jp.rouh.mahjong.table.round.RoundParticipant;
-import jp.rouh.mahjong.tile.Dices;
+import jp.rouh.mahjong.tile.DiceTwin;
 import jp.rouh.mahjong.tile.Wind;
 
 public class GamePlayer extends TableStrategyAdaptor implements RoundParticipant{
@@ -19,10 +19,9 @@ public class GamePlayer extends TableStrategyAdaptor implements RoundParticipant
     }
 
     public int rollDices(){
-        int dice1 = Dices.rollDice();
-        int dice2 = Dices.rollDice();
+        var dices = new DiceTwin();
         //diceRolled(orderWind, dice1, dice2);
-        return dice1 + dice2;
+        return dices.getDiceSum();
     }
 
     @Override

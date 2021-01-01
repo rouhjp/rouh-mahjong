@@ -4,6 +4,9 @@ package jp.rouh.mahjong.score;
  * 点数区分
  */
 public enum Limit{
+    /** ナシ */
+    EMPTY(""),
+
     /** 満貫 */
     JACKPOT("満貫"),
 
@@ -53,5 +56,38 @@ public enum Limit{
      */
     public String getName(){
         return name;
+    }
+
+    public boolean isEmpty(){
+        return this==Limit.EMPTY;
+    }
+
+    public int getBaseScore(){
+        return 0;
+    }
+
+    static Limit valueOf(int point, int doubles){
+        if(doubles>=13) return Limit.COUNT_LIMIT;
+        if(doubles>=11) return Limit.TRIPLE_JACKPOT;
+        if(doubles>=8) return Limit.DOUBLE_JACKPOT;
+        if(doubles>=6) return Limit.GREATER_JACKPOT;
+        if(doubles>=5) return Limit.JACKPOT;
+        if(doubles>=4 && point>=40) return Limit.JACKPOT;
+        if(doubles>=3 && point>=70) return Limit.JACKPOT;
+        return Limit.EMPTY;
+    }
+
+    static Limit valueOf(int limitMultiplier){
+        switch(limitMultiplier){
+            case 1: return Limit.HAND_LIMIT;
+            case 2: return Limit.DOUBLE_HAND_LIMIT;
+            case 3: return Limit.TRIPLE_HAND_LIMIT;
+            case 4: return Limit.QUADRUPLE_HAND_LIMIT;
+            case 5: return Limit.QUINTUPLE_HAND_LIMIT;
+            case 6: return Limit.SEXTUPLE_HAND_LIMIT;
+            case 7: return Limit.SEPTUPLE_HAND_LIMIT;
+            case 8: return Limit.OCTUPLE_HAND_LIMIT;
+        }
+        throw new IllegalArgumentException("");
     }
 }

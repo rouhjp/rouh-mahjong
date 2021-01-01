@@ -1,6 +1,6 @@
 package jp.rouh.mahjong.app.bitv.image;
 
-import jp.rouh.mahjong.app.bitv.Direction;
+import jp.rouh.mahjong.app.bitv.table.Direction;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

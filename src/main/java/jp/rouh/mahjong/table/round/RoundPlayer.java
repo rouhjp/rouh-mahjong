@@ -1,7 +1,7 @@
 package jp.rouh.mahjong.table.round;
 
 import jp.rouh.mahjong.score.*;
-import jp.rouh.mahjong.score.impl.TieredHandScoreCalculator;
+import jp.rouh.mahjong.score.type.TieredHandScoreCalculator;
 import jp.rouh.mahjong.table.TableStrategyAdaptor;
 import jp.rouh.mahjong.table.action.CallAction;
 import jp.rouh.mahjong.table.action.CallPhaseContextContainer;

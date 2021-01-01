@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Rouh
  * @version 1.0
  */
-public final class Dices{
+final class Dices{
     private Dices(){
         throw new AssertionError("no instance");
     }

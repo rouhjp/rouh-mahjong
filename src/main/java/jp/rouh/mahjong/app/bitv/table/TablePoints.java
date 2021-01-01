@@ -1,4 +1,4 @@
-package jp.rouh.mahjong.app.bitv;
+package jp.rouh.mahjong.app.bitv.table;
 
 import java.awt.*;
 
@@ -8,7 +8,7 @@ import java.awt.*;
  * @version 1.0
  */
 final class TablePoints{
-    private static final Point CENTER = new Point(580/2, 580/2);
+    public static final Point CENTER = new Point(580/2, 580/2);
     private TablePoints(){
         throw new AssertionError("no instance for you!");
     }
